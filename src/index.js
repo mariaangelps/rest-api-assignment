@@ -70,10 +70,6 @@ app.delete('/users/:id', (req, res) => {
     res.json({message: 'User deleted successfully'});
 });
 
-
-
-
-
 // **************************************************************
 // Put your implementation here
 // If necessary to add imports, please do so in the section above
