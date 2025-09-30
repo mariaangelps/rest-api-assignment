@@ -16,25 +16,23 @@ const users = []; // In-memory array to store users
 //Part 1: Create an Usee
 //define a POST route 
 app.post('/users', (req, res) => {
-    //console.log("Received requested data using POST Method",req.body);
+    console.log("Received requested data using POST Method",req.body);
 
     //process the data from request body
-    const {name,email} = req.body;
+    const {name,email}= req.body;
 
-    if (!name || !email) {
-        return res.status(400).json({ error: 'Name and email are required' });
-    }
-    const upcomingUser = { id: uuidv4(), name, email };
-
-    users.push(upcomingUser);
-    
     //send a response back to client
     res.status(201).json({
         message: 'User created successfully',
         receivedData: {name,email}
     })
-    
-    return res.status(201).json(upcomingUser);
+    if (!name || !email) {
+        return res.status(400).json({ error: 'Name and email are required' });
+    }
+
+    const upcomingUser = { id: uuidv4(), name, email };
+    users.push(upcomingUser);
+    res.status(201).json(upcomingUser);
 });
 
 //Part 2: Get all users
