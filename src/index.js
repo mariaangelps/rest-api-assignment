@@ -41,7 +41,7 @@ app.post('/users', (req, res) => {
 //Part 2: Get all users
 app.get('/users/:id', (req, res) => {
     //accessing the userId from the request parameters
-    const userId = req.params;
+    const {userId} = req.params;
 
     //find the user in the database
     const user = users.find(u => u.id === userId);
@@ -71,7 +71,7 @@ app.put('/users/:id', (req, res) => {
 
 //Step 4: Delete a user by ID
 app.delete('/users/:id', (req, res) => {
-    const userId = req.params;
+    const {userId} = req.params;
     const userIndex = users.findIndex(u => u.id === userId);
     if(userIndex === -1){
         return res.status(404).json({error: 'User not found'});
