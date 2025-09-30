@@ -28,7 +28,18 @@ app.post('/users', (req, res) => {
 });
 
 //Part 2: Get all users
-app.get
+app.get('/users/:id', (req, res) => {
+    //accessing the userId from the request parameters
+    const userId = req.params.id;
+
+    //find the user in the database
+    const user = users.find(u => u.id === userId);
+
+    if(!user){
+        return res.status(404).json({error: 'User not found'});
+    }
+    res.json(users);
+});
 
 
 
