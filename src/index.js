@@ -2,6 +2,7 @@ const express = require('express');
 const app = express();
 const port = 3000;
 
+
 // Middleware to parse JSON bodies
 app.use(express.json());
 
@@ -41,6 +42,36 @@ app.get('/users/:id', (req, res) => {
     res.json(users);
 });
 
+//Part 3: Update a user by ID
+app.put('/users/:id', (req, res) => {
+    const userId = req.params.id;
+    const {name, email} = req.body;
+    const userIndex= users.findIndex(u => u.id === userId);
+    const updates = req.body;
+    if(userIndex === -1){
+        return res.status(404).json({error: 'User was not found'});
+    }
+    if(!name || !email){
+        return res.status(400).json({error: 'Name and email are required fields'});
+    }
+    users[userIndex] = {id,name,email};
+    res.json(users[userIndex]);
+});
+
+
+//Step 4: Delete a user by ID
+app.delete('/users/:id', (req, res) => {
+    const userId = req.params.id;
+    const userIndex = users.findIndex(u => u.id === userId);
+    if(userIndex === -1){
+        return res.status(404).json({error: 'User not found'});
+    }
+    users.splice(userIndex,1);
+    res.json({message: 'User deleted successfully'});
+});
+
+
+
 
 
 // **************************************************************
@@ -50,14 +81,6 @@ app.get('/users/:id', (req, res) => {
 app.get('/', (req, res) => {
     res.send('Hello World!');
 });
-
-
-
-
-
-
-
-
 
 // Do not touch the code below this comment
 // **************************************************************
