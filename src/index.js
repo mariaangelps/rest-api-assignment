@@ -1,6 +1,8 @@
 const express = require('express');
 const app = express();
 const port = 3000;
+const { v4: uuidv4 } = require('uuid');
+const users = []; // In-memory array to store users
 
 
 // Middleware to parse JSON bodies
