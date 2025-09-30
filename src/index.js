@@ -1,79 +1,89 @@
 const express = require('express');
-const { randomUUID } = require('crypto');
-
 const app = express();
-const port = process.env.PORT || 3000;
+const port = 3000;
+const {v4: uuidv4 } = require('uuid');
 
-// In-memory array to store users
-const users = [];
 
 // Middleware to parse JSON bodies
 app.use(express.json());
 
-// Part 1: Create a User
+// **************************************************************
+// Put your implementation here
+// If necessary to add imports, please do so in the section above
+
+const users = []; // In-memory array to store users
+
+//Part 1: Create an Usee
+//define a POST route 
 app.post('/users', (req, res) => {
-  const { name, email } = req.body;
+    console.log("Received requested data using POST Method",req.body);
 
-  if (!name || !email) {
-    return res.status(400).json({ error: 'Name and email are required' });
-  }
+    //process the data from request body
+    const {name,email} = req.body;
 
-  const newUser = { id: randomUUID(), name, email };
-  users.push(newUser);
-  return res.status(201).json(newUser);
+    if (!name || !email) {
+        return res.status(400).json({ error: 'Name and email are required' });
+    }
+
+    const upcomingUser = { id: uuidv4(), name, email };
+
+    users.push(upcomingUser);
+    
+    //send a response back to client
+    res.status(201).json({
+        message: 'User created successfully',
+        receivedData: {name,email}
+    })
+    
+    return res.status(201).json(upcomingUser);
 });
 
-// Part 2a: Get all users
-app.get('/users', (req, res) => {
-  res.json(users);
-});
-
-// Part 2b: Get one user by ID
+//Part 2: Get all users
 app.get('/users/:id', (req, res) => {
-  const userId = req.params.id;
-  const user = users.find(u => u.id === userId);
+    //accessing the userId from the request parameters
+    const userId = req.params;
 
-  if (!user) {
-    return res.status(404).json({ error: 'User not found' });
-  }
-  return res.json(user);
-});
+    //find the user in the database
+    const user = users.find(u => u.id === userId);
 
-// Part 3: Update a user by ID
+    if(!user){
+        return res.status(404).json({error: 'User not found'});
+    }
+    return res.status(200).jsonson(users);
+})
+
+//Part 3: Update a user by ID
 app.put('/users/:id', (req, res) => {
-  const userId = req.params.id;
-  const { name, email } = req.body;
+    const userId = req.params;
+    const {name, email} = req.body;
+    const userIndex= users.findIndex(u => u.id === userId);
+    const updates = req.body;
+    if(userIndex === -1){
+        return res.status(404).json({error: 'User was not found'});
+    }
+    if(!name || !email){
+        return res.status(400).json({error: 'Name and email are required fields'});
+    }
+    users[userIndex] = {id,name,email};
+    return res.json(users[userIndex]);
+})
 
-  const idx = users.findIndex(u => u.id === userId);
-  if (idx === -1) {
-    return res.status(404).json({ error: 'User was not found' });
-  }
 
-  if (!name || !email) {
-    return res.status(400).json({ error: 'Name and email are required fields' });
-  }
-
-  // keep the same id
-  users[idx] = { id: users[idx].id, name, email };
-  return res.json(users[idx]);
-});
-
-// Part 4: Delete a user by ID
+//Step 4: Delete a user by ID
 app.delete('/users/:id', (req, res) => {
-  const userId = req.params.id;
-  const idx = users.findIndex(u => u.id === userId);
-
-  if (idx === -1) {
-    return res.status(404).json({ error: 'User not found' });
-  }
-
-  users.splice(idx, 1);
-  return res.json({ message: 'User deleted successfully' });
+    const userId = req.params;
+    const userIndex = users.findIndex(u => u.id === userId);
+    if(userIndex === -1){
+        return res.status(404).json({error: 'User not found'});
+    }
+    users.splice(userIndex,1);
+    return res.json({message: 'User deleted successfully'});
 });
 
-// Health/root
+
+
 app.get('/', (req, res) => {
-  res.send('Hello World!');
+    res.send('Hello World!');
 });
 
 // Do not touch the code below this comment
