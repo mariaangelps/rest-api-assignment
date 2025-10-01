@@ -3,68 +3,84 @@ const { v4: uuidv4 } = require('uuid');
 const app = express();
 const port = 3000;
 
+// Middleware to parse JSON bodies
 app.use(express.json());
 
-// In-memory store
-const users = [];
+// **************************************************************
+// Put your implementation here
+// If necessary to add imports, please do so in the section above
 
-// POST /users - create a user
+const users = []; // In-memory array to store users
+
+//Part 1: Create an Usee
+//define a POST route 
 app.post('/users', (req, res) => {
-  console.log("Received requested data using POST Method", req.body);
+    console.log("Received requested data using POST Method",req.body);
 
-  const { name, email } = req.body || {};
-  if (!name || !email) {
-    return res.status(400).json({ error: 'Name and email are required' });
-  }
+    //process the data from request body
+    const { name, email } = req.body || {};
 
-  const newUser = { id: uuidv4(), name, email };
-  users.push(newUser);
-  return res.status(201).json(newUser); // ← return { id, name, email }
+    if (!name || !email) {
+        return res.status(400).json({ error: 'Name and email are required' });
+    }
+
+    const upcomingUser = { id: uuidv4(), name, email };
+    users.push(upcomingUser);
+    //send a response back to client
+    return res.status(201).json(upcomingUser);
+    
 });
 
-// GET /users/:id - fetch a user by id
+//Part 2: Get all users
 app.get('/users/:id', (req, res) => {
-  const { id } = req.params; // ← use :id
-  const user = users.find(u => u.id === id);
-  if (!user) return res.status(404).json({ error: 'User not found' });
-  return res.status(200).json(user); // ← fix typo jsonson → json
+    //accessing the userId from the request parameters
+    const { id } = req.params;
+    //find the user in the database
+    const user = users.find(u => u.id === id);
+    if(!user) return res.status(404).json({error: 'User not found'});
+    return res.status(200).json(user);
 });
 
-// PUT /users/:id - update a user
+//Part 3: Update a user by ID
 app.put('/users/:id', (req, res) => {
-  const { id } = req.params;
-  const { name, email } = req.body || {};
+    const { id } = req.params;
+    const { name, email } = req.body || {};
+    const idx = users.findIndex(u => u.id === id);
+    if (idx === -1) return res.status(404).json({ error: 'User not found' });
+    if (!name || !email) {
+      return res.status(400).json({ error: 'Name and email are required' });
+    }
+    users[idx] = { id, name, email };
+    return res.status(200).json(users[idx]);
+  });
+  
 
-  const idx = users.findIndex(u => u.id === id);
-  if (idx === -1) return res.status(404).json({ error: 'User not found' });
-  if (!name || !email) {
-    return res.status(400).json({ error: 'Name and email are required' });
-  }
 
-  users[idx] = { id, name, email };
-  return res.status(200).json(users[idx]);
-});
-
-// DELETE /users/:id - delete a user
+//Step 4: Delete a user by ID
 app.delete('/users/:id', (req, res) => {
-  const { id } = req.params; // ← use :id
-  const idx = users.findIndex(u => u.id === id);
-  if (idx === -1) {
-    return res.status(404).json({ error: 'User not found' });
-  }
-  users.splice(idx, 1);
-  return res.status(204).send(); // ← 204 with no body
+    const { id } = req.params;
+    const userIndex = users.findIndex(u => u.id === userId);
+    if(userIndex === -1){
+        return res.status(404).json({error: 'User not found'});
+    }
+    users.splice(userIndex,1);
+    return res.status(204).send();
 });
+
+
 
 app.get('/', (req, res) => {
-  res.send('Hello World!');
+    res.send('Hello World!');
 });
 
-// Start server unless in test
+// Do not touch the code below this comment
+// **************************************************************
+
+// Start the server (only if not in test mode)
 if (process.env.NODE_ENV !== 'test') {
-  app.listen(port, () => {
-    console.log(`Server running at http://localhost:${port}`);
-  });
+    app.listen(port, () => {
+        console.log(`Server running at http://localhost:${port}`);
+    });
 }
 
-module.exports = app;
+module.exports = app; // Export the app for testing
