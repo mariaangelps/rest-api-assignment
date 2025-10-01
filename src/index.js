@@ -1,80 +1,89 @@
 const express = require('express');
-// Use the CommonJS build of uuid so Jest doesn't choke on ESM
-const { v4: uuidv4 } = require('uuid/dist/cjs');
-
+const { v4: uuidv4 } = require('uuid');
 const app = express();
 const port = 3000;
 
+// Middleware to parse JSON bodies
 app.use(express.json());
 
-// In-memory store
-const users = [];
+// **************************************************************
+// Put your implementation here
+// If necessary to add imports, please do so in the section above
 
-/**
- * POST /users
- * Body: { name, email }
- * Return 201 with { id, name, email }
- * 400 if missing fields
- */
+const users = []; // In-memory array to store users
+
+//Part 1: Create an Usee
+//define a POST route 
 app.post('/users', (req, res) => {
-  const { name, email } = req.body || {};
-  if (!name || !email) {
-    return res.status(400).json({ error: 'Name and email are required' });
-  }
-  const newUser = { id: uuidv4(), name, email };
-  users.push(newUser);
-  return res.status(201).json(newUser);
+    console.log("Received requested data using POST Method",req.body);
+
+    //process the data from request body
+    const { name, email }= req.body || {};
+
+    if (!name || !email) {
+        return res.status(400).json({ error: 'Name and email are required' });
+    }
+
+    const upcomingUser = { id: uuidv4(), name, email };
+    users.push(upcomingUser);
+    //send a response back to client
+    res.status(201).json({
+        message: 'User created successfully',
+        receivedData: {name,email}
+    })
+    
 });
 
-/**
- * GET /users/:id
- * Return 200 with the user
- * 404 if not found
- */
+//Part 2: Get all users
 app.get('/users/:id', (req, res) => {
-  const { id } = req.params;                // <-- use params.id
-  const user = users.find(u => u.id === id);
-  if (!user) return res.status(404).json({ error: 'User not found' });
-  return res.status(200).json(user);        // <-- return the user object
+    //accessing the userId from the request parameters
+    const { userId } = req.params;
+    //find the user in the database
+    const user = users.find(u => u.id === userId);
+    if(!user) return res.status(404).json({error: 'User not found'});
+    return res.status(200).jsonson(user);
 });
 
-/**
- * PUT /users/:id
- * Body: { name, email }
- * Return 200 with updated user
- * 404 if not found, 400 if missing fields
- */
+//Part 3: Update a user by ID
 app.put('/users/:id', (req, res) => {
-  const { id } = req.params;
-  const { name, email } = req.body || {};
-  const idx = users.findIndex(u => u.id === id);
-  if (idx === -1) return res.status(404).json({ error: 'User not found' });
-  if (!name || !email) {
-    return res.status(400).json({ error: 'Name and email are required' });
-  }
-  users[idx] = { id, name, email };
-  return res.status(200).json(users[idx]);
-});
+    const { id } = req.params;
+    const { name, email } = req.body || {};
+    const idx = users.findIndex(u => u.id === id);
+    if (idx === -1) return res.status(404).json({ error: 'User not found' });
+    if (!name || !email) {
+      return res.status(400).json({ error: 'Name and email are required' });
+    }
+    users[idx] = { id, name, email };
+    return res.status(200).json(users[idx]);
+  });
+  
 
-/**
- * DELETE /users/:id
- * Return 204 No Content on success
- * 404 if not found
- */
+
+//Step 4: Delete a user by ID
 app.delete('/users/:id', (req, res) => {
-  const { id } = req.params;                // <-- use params.id
-  const idx = users.findIndex(u => u.id === id);
-  if (idx === -1) return res.status(404).json({ error: 'User not found' });
-  users.splice(idx, 1);
-  return res.status(204).send();            // <-- no body for 204
+    const {userId} = req.params;
+    const userIndex = users.findIndex(u => u.id === userId);
+    if(userIndex === -1){
+        return res.status(404).json({error: 'User not found'});
+    }
+    users.splice(userIndex,1);
+    return res.status(204).json({message: 'User deleted successfully'});
 });
 
-// Optional root
-app.get('/', (req, res) => res.send('Hello World!'));
 
-// Start server unless running tests
+
+app.get('/', (req, res) => {
+    res.send('Hello World!');
+});
+
+// Do not touch the code below this comment
+// **************************************************************
+
+// Start the server (only if not in test mode)
 if (process.env.NODE_ENV !== 'test') {
-  app.listen(port, () => console.log(`Server running at http://localhost:${port}`));
+    app.listen(port, () => {
+        console.log(`Server running at http://localhost:${port}`);
+    });
 }
 
-module.exports = app;
+module.exports = app; // Export the app for testing
